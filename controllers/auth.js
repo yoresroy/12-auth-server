@@ -41,7 +41,8 @@ const crearUsuario = async (req, res = response) => {
             ok : true,
             msg : 'usuario creado de manera exitosa',
             name,
-            token
+            token,
+            email : dbUsuario.email,
         });
 
 
@@ -67,6 +68,8 @@ const loginUsuario = async(req, res = response) => {
     try {
      
         const dbUsuario = await Usuario.findOne( { email } );
+
+        console.log(dbUsuario);
 
         if ( !dbUsuario ) {
             return res.status(400).json({
@@ -94,7 +97,8 @@ const loginUsuario = async(req, res = response) => {
             ok : true,
             uid : dbUsuario.id,
             name : dbUsuario.name,
-            token
+            token,
+            email : dbUsuario.email
         });
 
     } catch (error) {
@@ -109,17 +113,24 @@ const loginUsuario = async(req, res = response) => {
 
 const revalidarToken = async(req, res = response) => {
 
-    const { uid, name } = req;
+    const { uid } = req;
 
+
+    const dbUsuario = await Usuario.findById(uid);
+
+    
     //Generar JWT
-    const token = await generarJWT(uid, name);
+    const token = await generarJWT(uid, dbUsuario.name);
+
+
 
     return res.json({
         ok : true,
         msg : 'Renew ',
         uid,
-        name,
-        token
+        name : dbUsuario.name,
+        token,
+        email : dbUsuario.email
     })
 }
 
